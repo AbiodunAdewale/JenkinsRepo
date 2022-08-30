@@ -22,6 +22,7 @@ pipeline {
 			stage('4-cross the street'){
 				steps{
 					sh 'echo "walk...."'
+					sh'whoami'
 				}
 			}
 		}
