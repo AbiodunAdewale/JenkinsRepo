@@ -1,16 +1,31 @@
-pipeline {
-	agent any 
-		stages{
-			stage('1-clone'){
-				steps{
-				checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-id', url: 'https://github.com/LateefAdewale/JenkinsRepo.git']]])
-				git branch: 'main', credentialsId: 'github-id', url: 'https://github.com/LateefAdewale/JenkinsRepo.git'
-				}
-			}
-			stage('2-uptime-lateef'){
-				steps{
-					sh 'bash -x /var/lib/jenkins/workspace/team3-hook-pipeline/lateef.sh'
-				}
-			}
-		}
+
+pipeline{
+  agent any
+  stages{
+    stage('System Check & Jenkins Status & Current User'){
+      parallel{
+        stage('System Statistics'){
+          steps{
+            sh 'lscpu'
+            sh 'date'
+            sh 'lsblk'
+            sh 'echo System check is complete' 
+
+          }
+        }
+        stage('Status of Jenkins'){
+          steps{
+            sh 'sudo systemctl status jenkins'
+            sh 'echo Jenkins is running'  
+          }
+        }
+      }
+    }
+    stage('Linux User'){
+      steps{
+        sh 'whoami'
+        sh 'echo The present user is Lateef '
+      }
+    }
+  }
 }
