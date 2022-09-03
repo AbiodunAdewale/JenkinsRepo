@@ -1,30 +1,43 @@
-
 pipeline{
-  agent any
+  agent {
+    label {
+      label 'jenkins-slave1'
+    }
+  }
   stages{
-    stage('System Check & Jenkins Status & Current User'){
+    stage('version-control'){
+      steps{
+        checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-id', url: 'https://github.com/LateefAdewale/JenkinsRepo.git']]])
+        git branch: 'main', credentialsId: 'github-id', url: 'https://github.com/LateefAdewale/JenkinsRepo.git'
+      }
+    }
+    stage('parallel-job'){
       parallel{
-        stage('System Statistics'){
+        stage('sub-job1'){
           steps{
-            sh 'lscpu'
-            sh 'date'
-            sh 'lsblk'
-            sh 'echo System check is complete' 
-
+            echo 'action1'
           }
         }
-        stage('Status of Jenkins'){
+        stage('sub-job2'){
           steps{
-            sh 'sudo systemctl status jenkins'
-            sh 'echo Jenkins is running'  
+            echo 'action2'
           }
+        }
+        stage('sub-job3'){
+            steps{
+                echo 'action3'
+            }
         }
       }
     }
-    stage('Linux User'){
+    stage('codebuild'){
+      agent {
+        label {
+          label 'jenkins-slave2'
+        }
+      }
       steps{
-        sh 'whoami'
-        sh 'echo The present user is Lateef '
+        sh 'cat /etc/passwd'
       }
     }
   }
