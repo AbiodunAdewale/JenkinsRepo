@@ -1,7 +1,7 @@
 pipeline{
   agent {
     label {
-      label 'jenkins-slave1'
+      label 'slave1'
     }
   }
   stages{
@@ -33,7 +33,7 @@ pipeline{
     stage('codebuild'){
       agent {
         label {
-          label 'jenkins-slave2'
+          label 'slave2'
         }
       }
       steps{
