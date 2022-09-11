@@ -1,31 +1,36 @@
-
-pipeline{
+ pipeline {
   agent any
+  tools {
+    maven 'maven'
+  }
   stages{
-    stage('System Check & Jenkins Status & Current User'){
-      parallel{
-        stage('System Statistics'){
-          steps{
-            sh 'lscpu'
-            sh 'date'
-            sh 'lsblk'
-            sh 'echo System check is complete' 
-
-          }
-        }
-        stage('Status of Jenkins'){
-          steps{
-            sh 'sudo systemctl status jenkins'
-            sh 'echo Jenkins is running'  
-          }
-        }
+    stage('1-git-clone'){
+      steps{
+        checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHub Id', url: 'https://github.com/LateefAdewale/JenkinsRepo.git']]])
       }
     }
-    stage('Linux User'){
+    stage('2-cleanws'){
       steps{
-        sh 'whoami'
-        sh 'echo The present user is Lateef '
+        sh 'mvn clean'
       }
+    }
+    stage('3-mavenbuild'){
+      steps{
+        sh 'mvn package'
+      }
+    }
+    stage('unittest'){
+        steps{
+            sh 'mvn test'
+        }
+    }
+    stage('codequality'){
+        steps{
+       sh 'mvn clean verify sonar:sonar \
+  -Dsonar.projectKey=etech-team2 \
+  -Dsonar.host.url=http://54.187.203.233:9000 \
+  -Dsonar.login=sqp_6aa95f238a33feaaef6e288517bc6840ee9c94ba'
+        }
     }
   }
 }
